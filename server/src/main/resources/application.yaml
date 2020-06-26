@@ -1,16 +1,15 @@
 server:
-  port: 8082
   ssl:
     enabled: true
     client-auth: need
-    key-alias: tws-server
+    key-alias: server
 
-    key-store: classpath:ssl/tws-server.jks
+    key-store: classpath:ssl/server.jks
     key-store-password: server
     key-store-type: JKS
     key-store-provider: SUN
 
-    trust-store: classpath:ssl/tws-server.jks
+    trust-store: classpath:ssl/server.jks
     trust-store-password: server
     trust-store-type: JKS
     trust-store-provider: SUN

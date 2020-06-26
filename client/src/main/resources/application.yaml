@@ -1,17 +1,16 @@
 server:
-  port: 8081
   ssl:
     enabled: false
 
-    key-store: classpath:ssl/tws-client.jks
+    key-store: classpath:ssl/client.jks
     key-store-password: client
     key-store-type: JKS
     key-store-provider: SUN
 
-    trust-store: classpath:ssl/tws-client.jks
+    trust-store: classpath:ssl/client.jks
     trust-store-password: client
     trust-store-type: JKS
     trust-store-provider: SUN
 
 url:
-  server: https://localhost:8082
+  server: https://server:8080

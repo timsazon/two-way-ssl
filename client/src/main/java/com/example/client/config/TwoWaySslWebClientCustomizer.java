@@ -7,14 +7,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;
 import org.springframework.boot.web.server.Ssl;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.KeyStore;
 
@@ -22,6 +21,8 @@ import java.security.KeyStore;
 public class TwoWaySslWebClientCustomizer implements WebClientCustomizer {
     @NonNull
     private final Ssl ssl;
+    @NonNull
+    private final ResourceLoader resourceLoader;
 
     @Override
     @SneakyThrows
@@ -29,8 +30,8 @@ public class TwoWaySslWebClientCustomizer implements WebClientCustomizer {
         final KeyStore trustStore = KeyStore.getInstance(ssl.getKeyStoreType());
         final KeyStore keyStore = KeyStore.getInstance(ssl.getTrustStoreType());
 
-        try (final InputStream trustStoreInput = new FileInputStream(ResourceUtils.getFile(ssl.getTrustStore()));
-             final InputStream keyStoreInput = new FileInputStream(ResourceUtils.getFile(ssl.getKeyStore()))) {
+        try (final InputStream trustStoreInput = resourceLoader.getResource(ssl.getTrustStore()).getInputStream();
+             final InputStream keyStoreInput = resourceLoader.getResource(ssl.getKeyStore()).getInputStream()) {
             trustStore.load(trustStoreInput, ssl.getTrustStorePassword().toCharArray());
             keyStore.load(keyStoreInput, ssl.getKeyStorePassword().toCharArray());
         }
@@ -46,8 +47,7 @@ public class TwoWaySslWebClientCustomizer implements WebClientCustomizer {
                 .keyManager(keyManagerFactory)
                 .build();
 
-        final HttpClient httpClient
-                = HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
+        final HttpClient httpClient = HttpClient.create().secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
         webClientBuilder.clientConnector(new ReactorClientHttpConnector(httpClient));
     }
 }
